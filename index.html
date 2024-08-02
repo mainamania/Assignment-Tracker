@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment Tracker</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: #ffb6c1;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevents scrollbar due to flying elements */
+            background-image: url('https://www.transparenttextures.com/patterns/cubes.png'), url('https://www.transparenttextures.com/patterns/tiny-grid.png');
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid #ff69b4;
+            position: relative;
+            z-index: 1;
+            margin: 30px auto;
+        }
+
+        h1, h2 {
+            color: #ff1493;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #ffb6c1;
+        }
+
+        td:last-child {
+            text-align: center;
+        }
+
+        .add-assignment {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #ff69b4;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-basis: 100%;
+        }
+
+        button:hover {
+            background-color: #ff1493;
+        }
+
+        .status-toggle {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+
+        .status-toggle.incomplete {
+            background-color: #dc3545;
+        }
+
+        .status-toggle.complete {
+            background-color: #28a745;
+        }
+
+        .floating {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            animation: fly 15s infinite linear;
+            z-index: 0;
+        }
+
+        .butterfly {
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/89/Butterfly_icon.svg');
+            background-size: cover;
+        }
+
+        .heart {
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/70/Simple_red_heart_icon.svg');
+            background-size: cover;
+        }
+
+        .book {
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/a/ac/Pink_book.png');
+            background-size: cover;
+        }
+
+        @keyframes fly {
+            0% {
+                transform: translateX(0) translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateX(100px) translateY(-50px) rotate(20deg);
+            }
+            50% {
+                transform: translateX(200px) translateY(-100px) rotate(-20deg);
+            }
+            75% {
+                transform: translateX(300px) translateY(-50px) rotate(10deg);
+            }
+            100% {
+                transform: translateX(400px) translateY(0) rotate(0deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Assignment Tracker</h1>
+        <h2>HOPE I'M NOT TOO MUCH OF A DISTRACTION ❤</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Assignment Name</th>
+                    <th>Date Given</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="assignment-table">
+                <!-- Rows will be added here -->
+            </tbody>
+        </table>
+        <div class="add-assignment">
+            <input type="text" id="assignment-name" placeholder="Assignment Name">
+            <input type="date" id="date-given" placeholder="Date Given">
+            <input type="date" id="due-date" placeholder="Due Date">
+            <button onclick="addAssignment()">Add Assignment</button>
+        </div>
+    </div>
+
+    <!-- Floating Elements -->
+    <div class="floating butterfly" style="top: 10px; left: -60px;"></div>
+    <div class="floating heart" style="top: 80px; left: -60px;"></div>
+    <div class="floating book" style="top: 150px; left: -60px;"></div>
+    <div class="floating butterfly" style="top: 220px; left: -60px;"></div>
+    <div class="floating heart" style="top: 290px; left: -60px;"></div>
+
+    <script>
+        const assignmentsKey = 'assignments'; // Key for local storage
+        let assignments = JSON.parse(localStorage.getItem(assignmentsKey)) || [];
+        const compliments = [
+            "You are beautiful 😍",
+            "You are amazing🥰",
+            "You have the prettiest smile😊",
+            "Mark is thinking about you❤"
+        ];
+
+        function addAssignment() {
+            const assignmentName = document.getElementById('assignment-name').value;
+            const dateGiven = document.getElementById('date-given').value;
+            const dueDate = document.getElementById('due-date').value;
+            if (!assignmentName || !dateGiven || !dueDate) return alert("Please enter all fields.");
+
+            const newAssignment = {
+                id: Date.now(),
+                assignmentName,
+                dateGiven,
+                dueDate,
+                completed: false
+            };
+            assignments.push(newAssignment);
+            saveAssignments();
+            renderTable();
+
+            // Clear input fields
+            document.getElementById('assignment-name').value = '';
+            document.getElementById('date-given').value = '';
+            document.getElementById('due-date').value = '';
+        }
+
+        function toggleCompletion(id) {
+            const assignment = assignments.find(a => a.id === id);
+            assignment.completed = !assignment.completed;
+            saveAssignments();
+            renderTable();
+            if (assignment.completed) {
+                alert(getRandomCompliment());
+            }
+        }
+
+        function getRandomCompliment() {
+            return compliments[Math.floor(Math.random() * compliments.length)];
+        }
+
+        function saveAssignments() {
+            localStorage.setItem(assignmentsKey, JSON.stringify(assignments));
+        }
+
+        function renderTable() {
+            const tableBody = document.getElementById('assignment-table');
+            tableBody.innerHTML = '';
+
+            assignments.forEach(assignment => {
+                const row = document.createElement('tr');
+
+                const assignmentNameCell = document.createElement('td');
+                assignmentNameCell.textContent = assignment.assignmentName;
+                row.appendChild(assignmentNameCell);
+
+                const dateGivenCell = document.createElement('td');
+                dateGivenCell.textContent = assignment.dateGiven;
+                row.appendChild(dateGivenCell);
+
+                const dueDateCell = document.createElement('td');
+                dueDateCell.textContent = assignment.dueDate;
+                row.appendChild(dueDateCell);
+
+                const statusCell = document.createElement('td');
+                const statusToggle = document.createElement('span');
+                statusToggle.textContent = assignment.completed ? 'Complete' : 'Incomplete';
+                statusToggle.classList.add('status-toggle');
+                statusToggle.classList.add(assignment.completed ? 'complete' : 'incomplete');
+                statusToggle.onclick = () => toggleCompletion(assignment.id);
+                statusCell.appendChild(statusToggle);
+                row.appendChild(statusCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Initial render
+        renderTable();
+    </script>
+</body>
+</html>
